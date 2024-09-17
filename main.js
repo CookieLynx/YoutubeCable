@@ -1,7 +1,6 @@
 // main.js
-
-
 var player;
+var channelID = 0;
 
 
 
@@ -18,17 +17,55 @@ function getTime()
 
 
 
-function readVideoJson()
-{
-    //const videoJson = require('./videos.json');
-    //console.log(videoJson);
+async function readVideoJson() {
+    try {
+        const response = await fetch('videoList.json');
+        if (!response.ok) {
+            throw new Error('Network response was not ok');
+        }
+        const videoJson = await response.json();
+        return videoJson;
+    } catch (error) {
+        console.error('There was a problem with the fetch operation:', error);
+        return []; // Return an empty array
+    }
+}
+
+async function getVideoIndex() {
+    const json = await readVideoJson();
+    const seconds = getTime();
+
+    // Ensure that json is an array before filtering
+    if (!Array.isArray(json)) {
+        console.error('Fetched data is not an array');
+        return null;
+    }
+
+    // Filter the JSON with the videos thart are on the correnct channel and are not in the future
+    const channelVideos = json.filter(video => video.channel == channelID);
+    const validVideos = channelVideos.filter(video => video.start_playing <= seconds);
+
+    //find closest video
+    let closestVideo = validVideos[0];
+    validVideos.forEach(video => {
+        if (video.start_playing > closestVideo.start_playing) {
+            closestVideo = video;
+        }
+    });
+
+    //return closest video or null
+    return closestVideo ? closestVideo : null;
 }
 
 
 function loadVideo()
 {
-    const json = readVideoJson();
-    const seconds = getTime();
+    const video = getVideoIndex();
+    if(video == null)
+    {
+        //we have a big problem
+    }
+    console.log(video);
 
     //Find the video the player should be playing based on the current time and the channel
 

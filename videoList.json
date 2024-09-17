@@ -2,16 +2,22 @@
     {
         "id": 1,
         "video_id": "g4FNC9dbT-E",
-        "start_playing": 3600
+        "start_playing": 3600,
+        "video_length": 3000,
+        "channel": 0
     },
     {
         "id": 2,
         "video_id": "uPrXEtvKFoI",
-        "start_playing": 7200
+        "start_playing": 7200,
+        "video_length": 3000,
+        "channel": 1
     },
     {
         "id": 3,
         "video_id": "8oc_huxXD4M",
-        "start_playing": 10800
+        "start_playing": 10800,
+        "video_length": 3000,
+        "channel": 2
     }
 ]
