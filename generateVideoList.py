@@ -24,7 +24,8 @@ def get_trending_videos():
     request = youtube.videos().list(
         part='snippet,contentDetails',
         chart='mostPopular',
-        regionCode='CA',  # Change region code if needed
+        regionCode='US',  # Change region code if needed
+        videoCategoryId='20',
         maxResults=50
     )
     response = request.execute()
