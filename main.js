@@ -1,3 +1,5 @@
+//import videoList from './videoList.js';
+
 // main.js
 var player;
 var channelID = 0;
@@ -17,22 +19,12 @@ function getTime()
 
 
 
-async function readVideoJson() {
-    try {
-        const response = await fetch('videoList.json');
-        if (!response.ok) {
-            throw new Error('Network response was not ok');
-        }
-        const videoJson = await response.json();
-        return videoJson;
-    } catch (error) {
-        console.error('There was a problem with the fetch operation:', error);
-        return []; // Return an empty array
-    }
+function readVideoJson() {
+    return videoList;
 }
 
-async function getVideoIndex() {
-    const json = await readVideoJson();
+function getVideoIndex() {
+    const json =  readVideoJson();
     const seconds = getTime();
 
     // Ensure that json is an array before filtering
@@ -41,9 +33,13 @@ async function getVideoIndex() {
         return null;
     }
 
+    console.log(json);
+
     // Filter the JSON with the videos thart are on the correnct channel and are not in the future
     const channelVideos = json.filter(video => video.channel == channelID);
+    console.log(channelVideos);
     const validVideos = channelVideos.filter(video => video.start_playing <= seconds);
+    console.log(validVideos);
 
     //find closest video
     let closestVideo = validVideos[0];
@@ -52,6 +48,7 @@ async function getVideoIndex() {
             closestVideo = video;
         }
     });
+    console.log("Closest video: " + closestVideo);
 
     //return closest video or null
     return closestVideo ? closestVideo : null;
@@ -63,15 +60,30 @@ function loadVideo()
     const video = getVideoIndex();
     if(video == null)
     {
+        console.error("No video to play");
         //we have a big problem
     }
-    console.log(video);
+    console.log("THIS IS THE VIDEO!!!" + video.video_id);
 
     //Find the video the player should be playing based on the current time and the channel
 
     //if the time the video should play time is behind the current time we need to jump forward in the video to a timestamp (second argument in loadVideoById)
-
-    player.loadVideoById('uPrXEtvKFoI');  // Load the desired video
+    if(video.start_playing == getTime())
+    {
+        player.loadVideoById(video.video_id);
+    }else
+    {
+        //second argument is the time in seconds to start the video at
+        var start_time = video.start_playing - getTime();
+        start_time = Math.abs(start_time);
+        console.log("Start time: " + start_time);
+         //an edge case may occure where the time to skip to is outside the video runtime, in that case the json file clearly does not have enough videos for the day
+        if(start_time > video.video_length)
+        {
+            console.error("Number of videos provided length is too short for 24 hours of playtime on channel: " + channelID);
+        }
+        player.loadVideoById(video.video_id, start_time);  // Load the desired video
+    }
 }
 
 
@@ -163,4 +175,33 @@ function onPlayerStateChange(event) {
         
     }
 }
+
+
+
+
+//temp location of videoList
+
+const videoList = [
+    {
+        "id": 1,
+        "video_id": "g4FNC9dbT-E",
+        "start_playing": 3600,
+        "video_length": 3000,
+        "channel": 0
+    },
+    {
+        "id": 2,
+        "video_id": "uPrXEtvKFoI",
+        "start_playing": 7200,
+        "video_length": 3000,
+        "channel": 1
+    },
+    {
+        "id": 3,
+        "video_id": "8oc_huxXD4M",
+        "start_playing": 10800,
+        "video_length": 3000,
+        "channel": 2
+    }
+];
 
